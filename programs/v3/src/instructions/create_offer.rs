@@ -39,7 +39,8 @@ pub struct CreateOffer<'info> {
     offer_escrow: Account<'info, TokenAccount>,
     offer_mint: Account<'info, Mint>,
     request_mint: Account<'info, Mint>,
-    /// CHECK: ehcked in global
+    /// CHECK: checked in global
+    #[account(mut)]
     treasury: UncheckedAccount<'info>,
     token_program: Program<'info, Token>,
     associated_token_program: Program<'info, AssociatedToken>,
@@ -54,6 +55,7 @@ impl CreateOffer<'_> {
 
         // no need to check input amounts.
 
+        msg!("ok");
         if !global.can_create_offer() {
             err!(TradeOfferError::FunctionDisabled)
         } else { Ok(()) }

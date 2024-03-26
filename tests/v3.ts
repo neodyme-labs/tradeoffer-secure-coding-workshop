@@ -2,7 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { BN,web3, Program } from "@coral-xyz/anchor";
 import { V3, IDL } from "../target/types/v3";
 import { PublicKey, Keypair, SystemProgram } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, createMint, createAssociatedTokenAccount, mintTo } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, createMint, createAssociatedTokenAccount, mintTo, getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { ASSOCIATED_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 const PROGRAM_ID = new PublicKey("EaBpabfkGswhPnC14mnwz3XxHHyJuqZjPZAMU9mR7KR3");
 describe("v3", () => {
@@ -51,6 +51,7 @@ describe("v3", () => {
     console.log(`admin ${glob.admin.toString()}`);
     console.log(`treasury ${glob.treasury.toString()}`);
     console.log(`fee ${glob.fee.toNumber().toString()}`);
+    console.log(`creating Mint`);
 
         const mint_a = await createMint(
             provider.connection,
@@ -59,6 +60,7 @@ describe("v3", () => {
             payer.publicKey,
             6
         );
+    console.log(`creating Mint`);
         const mint_b = await createMint(
             provider.connection,
             payer,
@@ -66,28 +68,32 @@ describe("v3", () => {
             payer.publicKey,
             6
         );
+    console.log(`creating account`);
         const offererTokenAccountA = await createAssociatedTokenAccount(
             provider.connection,
             payer,
             mint_a,
             payer.publicKey
         );
+    console.log(`creating account`);
         const offererTokenAccountB = await createAssociatedTokenAccount(
             provider.connection,
             payer,
-            mint_a,
+            mint_b,
             payer.publicKey
         );
+    console.log(`creating account`);
         const takerTokenAccountA = await createAssociatedTokenAccount(
             provider.connection,
             payer,
             mint_a,
             taker.publicKey
         );
+    console.log(`creating account`);
         const takerTokenAccountB = await createAssociatedTokenAccount(
             provider.connection,
             payer,
-            mint_a,
+            mint_b,
             taker.publicKey
         );
 
@@ -96,17 +102,18 @@ describe("v3", () => {
       const [offer, _] = PublicKey.findProgramAddressSync(
           [
               anchor.utils.bytes.utf8.encode("tradeoffer"),
-              admin.publicKey.toBuffer(),
+              payer.publicKey.toBuffer(),
           ],
           program.programId
       );
-        const escrow = await createAssociatedTokenAccount(
-            provider.connection,
-            payer,
+    console.log(`creating account`);
+        const escrow = getAssociatedTokenAddressSync(
             mint_a,
             offer,
+            true,
         );
 
+    console.log(`minting to account`);
         mintTo(
             provider.connection,
             payer,
@@ -116,6 +123,7 @@ describe("v3", () => {
             10000 * 10**6
         );
 
+    console.log(`minting to account`);
         mintTo(
             provider.connection,
             payer,
@@ -127,9 +135,10 @@ describe("v3", () => {
 
         console.log("minted 10k tokens to offerer and taker");
         console.log("creating offer tx");
+
       const offer_tx = await program.methods.createOffer({
-          offerAmount: 1234,
-          requestAmount: 3333,
+          offerAmount: new BN(1234),
+          requestAmount: new BN(3333),
       }).accounts({
           owner: payer.publicKey,
           global: globalAcc,
@@ -143,6 +152,7 @@ describe("v3", () => {
           associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
           systemProgram: SystemProgram.programId,
       }).rpc();
+      console.log(`tx ${offer_tx}`);
   });
 });
 
