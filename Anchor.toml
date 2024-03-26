@@ -1,0 +1,22 @@
+[toolchain]
+
+[features]
+seeds = false
+skip-lint = false
+
+[programs.localnet]
+#tradeoffer = "HeUXwSLeKH7oe4vaNXvhDipFuijhCuUnZCC8ADzN7dPd"
+v0 = "HTnAwbxeHFSCYuGLXqjU7u4pnTBoM1C4U9gkRtiAdYsU"
+v1 = "C4at2ajRabPt67goQuTvXpTKvb262j4MrHG4yYLExUNH"
+v2 = "D5AoRK9vLoeNhtmV8Brbj9pau1KAJA3Br8oeBQ2bjyML"
+v3 = "EaBpabfkGswhPnC14mnwz3XxHHyJuqZjPZAMU9mR7KR3"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Localnet"
+wallet = "key.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
