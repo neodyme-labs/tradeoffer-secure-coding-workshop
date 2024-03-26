@@ -5,6 +5,7 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 use anchor_spl::token;
 use crate::state::*;
 use crate::error::TradeOfferError;
+use crate::events::{OfferEvent,OfferEventType};
 
 
 #[derive(Accounts)]
@@ -71,6 +72,15 @@ impl CancelOffer<'_> {
                 &[&[b"tradeoffer", offer.key().as_ref(), &[ctx.bumps.offer]],]
                 ), offer.offer_amount
         )?;
+
+        emit!(OfferEvent{
+            offer: offer.key(),
+            event: OfferEventType::Cancel,
+            offer_mint: offer.offer_mint,
+            request_mint: offer.request_mint,
+            offer_amount: offer.offer_amount,
+            request_amount: offer.request_amount,
+        });
         global.invariant()
     }
 }
